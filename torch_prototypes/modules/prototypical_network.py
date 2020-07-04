@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-#from torch_prototypes.metrics.distortion import Pseudo_Huber
+from torch_prototypes.metrics.distortion import Pseudo_Huber
 
-from torch_scatter import scatter_mean
+#from torch_scatter import scatter_mean
 
 
 class LearntPrototypes(nn.Module):
