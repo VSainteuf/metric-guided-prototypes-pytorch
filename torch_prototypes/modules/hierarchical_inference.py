@@ -1,7 +1,8 @@
 import torch
 import torch.nn as nn
 
-from torch_scatter import scatter_softmax, scatter_sum, scatter_logsumexp
+#from torch_scatter import scatter_softmax, scatter_sum, scatter_logsumexp
+
 
 
 class HierarchicalInference(nn.Module):
