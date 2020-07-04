@@ -12,7 +12,7 @@ The modules implemented in this repo can be applied to any classification task w
 ### Requirements
 The `torch_prototypes` package only requires an environment with PyTorch installed (only tested with version 1.5.0).
 For the DeepNCM, and Hierarchical Inference module [torch_scatter](https://github.com/rusty1s/pytorch_scatter) is also required. 
-The installation of torch_scatter can be challenging, if you do not need the two latter modules please use the [no_scatter]() branch of this repo.  
+The installation of torch_scatter can be challenging, if you do not need the two latter modules please use the [no_scatter](https://github.com/VSainteuf/metric-guided-prototypes-pytorch/tree/no_scatter) branch of this repo.  
 
 |                                 | PyTorch | torch_scatter |
 |---------------------------------|:-------:|:-------------:|
@@ -27,12 +27,12 @@ To install the package, run `pip install -e .` inside the main folder.
 
 
 ## Code 
-The package torch_prototypes contains the implementation of the different methods shown in the paper as `torch.nn` modules. 
+The package torch_prototypes contains different methods shown in the paper, implemented as `torch.nn` modules: 
 - "free" learnt prototypes
 - metric-guided prototypes (learnt and fixed) 
 - hyperspherical prototypes
 - hierarchical inference (YOLOv2 hierarchical classification)
-- Distortion loss, Rank loss, and hypershperical prototype loss
+- Distortion loss, Rank loss, and Hypershperical prototype loss
 
 
 ### Example usage on MNIST
@@ -40,13 +40,62 @@ We show how to use the code to reproduce Figure 1 of the paper in the notebook `
 The notebook can also be directly run on [this google colab]().
 
 
-### Advanced usage
+### Generic usage
 
-coming soon
+#### Model definition
+The modules in the `torch_prototypes` package are applicable to any classification problem.
+They all follow the same paradigm of being wrapper modules around a backbone neural architecture that maps the samples `X` of a dataset to embeddings `E`.
+
+For example, the following lines define a learnt-prototypes classification model with ResNet18 backbone for image embedding.
+Backward gradient computations will propagate both to the prototypes and to the backbone's weights.
+```python
+from torch_prototypes.modules import prototypical_network
+from torchvision.models.resnet import resnet18
+
+backbone = resnet18()
+emb_dim = backbone.fc.out_features
+num_classes = 100
+
+model = prototypical_network.LearntPrototypes(backbone, n_prototypes=num_classes, embedding_dim=emb_dim)
+
+```
+
+#### Model output
+The output of the wrapper model can be treated as regular classification logits:
+```python
+import torch.nn as nn
+xe = nn.CrossEntropyLoss()
+
+logits = model(X)
+loss = xe(logits, Y)
+prediction = logits.argmax(dim=-1)
+```
+
+#### Metric-guided regularization
+The `torch_prototypes` package also contains the loss functions (DistortionLoss and RankLoss) to implement metric-guided regularization.
+The metric needs to be given in the form of a tensor `D` of shape `num_classes x num_classes` that defines the pairwise misclassification costs.
+Once defined, these losses can be applied to the model's prototypes to guide the learning process:
+
+```python
+import torch
+import torch.nn as nn
+from torch_prototypes.metrics.distortion import DistortionLoss
+
+xe = nn.CrossEntropyLoss()
+
+D = torch.rand((num_classes,num_classes)) #Dummy cost tensor
+disto_loss = DistortionLoss(D=D)
+
+logits = model(X)
+loss = xe(logits, Y) + disto_loss(model.prototypes)
+
+
+```
+
 
 ## Reference
 
-Please include a reference to the following paper if you are using any learnt-prototype base method (proper reference coming soon):
+Please include a reference to the following paper if you are using any of the learnt-prototype based methods (proper reference coming soon):
 
 - *Metric-Guided Prototype Learning*, Sainte Fare Garnot Vivien and Landrieu Loic
 
