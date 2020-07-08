@@ -93,9 +93,9 @@ loss = xe(logits, Y) + disto_loss(model.prototypes)
 ```
 
 
-## Reference
+## References
 
-Please include a reference to the following paper if you are using any of the learnt-prototype based methods (proper reference coming soon):
+Please include a reference to the following paper if you are using any of the learnt-prototype based methods:
 
 ```
 @article{garnot2020mgp,
