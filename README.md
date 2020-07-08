@@ -1,5 +1,5 @@
 # Metric-Guided Prototype Learning
-PyTorch implementation of [Metric-Guided Prototype Learning]() for hierarchical classification.
+PyTorch implementation of [Metric-Guided Prototype Learning](https://arxiv.org/abs/2007.03047) for hierarchical classification.
 The modules implemented in this repo can be applied to any classification task where a metric can be defined on the class set, *i.e.* when not all misclassifications have the same cost. Such a metric can easily be derived from the hierarchical structure of most class sets. 
 
 
@@ -97,8 +97,15 @@ loss = xe(logits, Y) + disto_loss(model.prototypes)
 
 Please include a reference to the following paper if you are using any of the learnt-prototype based methods (proper reference coming soon):
 
-- *Metric-Guided Prototype Learning*, Sainte Fare Garnot Vivien and Landrieu Loic
+```
+@article{garnot2020mgp,
+  title={Metric-Guided Prototype Learning},
+  author={Sainte Fare Garnot, Vivien  and Landrieu, Loic},
+  journal={arXiv preprint arXiv:2007.03047},
+  year={2020}
+}
 
+```
 For the hyperspherical prototypes, DeepNCM and Yolov2, respectively:
 - *Hyperspherical Prorotype Network*, Mettes Pascal and van der Pol Elise and Snoek, NeurIPS 2019
 - *DeepNCM: deep nearest class mean classifiers*, Guerriero Samantha and Caputo Barbara and Mensink Thomas, ICLR Workshop 2018
