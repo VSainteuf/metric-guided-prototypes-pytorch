@@ -4,6 +4,7 @@ import torch.nn as nn
 
 class AverageCost(nn.Module):
     """Average Cost of predictions, according to given cost matrix D"""
+
     def __init__(self, D, ignore_index=None):
         """
         Args:
@@ -17,7 +18,9 @@ class AverageCost(nn.Module):
     def forward(self, input, y_true):
         if len(input.shape) == 4:  # Flatten 2D data
             b, c, h, w = input.shape
-            input = input.view(b, c, h * w).transpose(1, 2).contiguous().view(b * h * w, c)
+            input = (
+                input.view(b, c, h * w).transpose(1, 2).contiguous().view(b * h * w, c)
+            )
             y_true = y_true.view(b * h * w)
 
         out = nn.Softmax(dim=-1)(input)
@@ -28,11 +31,19 @@ class AverageCost(nn.Module):
         if self.ignore_index is None:
             return float((Dists * b).sum(dim=-1).mean().detach().cpu().numpy())
         else:
-            return float((Dists * b)[y_true.long() != self.ignore_index].sum(dim=-1).mean().detach().cpu().numpy())
+            return float(
+                (Dists * b)[y_true.long() != self.ignore_index]
+                .sum(dim=-1)
+                .mean()
+                .detach()
+                .cpu()
+                .numpy()
+            )
 
 
 class EMDLoss(nn.Module):
     """Squared Earth Mover regularization"""
+
     def __init__(self, l, mu, D):
         """
         Args:
@@ -49,9 +60,10 @@ class EMDLoss(nn.Module):
 
         if len(input.shape) == 4:  # Flatten 2D data
             b, c, h, w = input.shape
-            input = input.view(b, c, h * w).transpose(1, 2).contiguous().view(b * h * w, c)
+            input = (
+                input.view(b, c, h * w).transpose(1, 2).contiguous().view(b * h * w, c)
+            )
             y_true = y_true.view(b * h * w)
-
 
         out = nn.Softmax(dim=-1)(input)
         Dists = self.D[y_true.long()]
@@ -60,5 +72,3 @@ class EMDLoss(nn.Module):
         E = E.sum(dim=-1)
 
         return self.l * E.mean()
-
-

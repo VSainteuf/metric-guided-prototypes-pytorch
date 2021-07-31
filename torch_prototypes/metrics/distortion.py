@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 
+
 class Eucl_Mat(nn.Module):
     """Pairwise Euclidean distance"""
 
@@ -27,12 +28,12 @@ class Cosine_Mat(nn.Module):
 
     def forward(self, mapping):
         """
-       Args:
-           mapping (tensor): Tensor of shape N_vectors x Embedding_dimension
-       Returns:
-           distances: Tensor of shape N_vectors x N_vectors giving the pairwise Cosine distances
+        Args:
+            mapping (tensor): Tensor of shape N_vectors x Embedding_dimension
+        Returns:
+            distances: Tensor of shape N_vectors x N_vectors giving the pairwise Cosine distances
 
-       """
+        """
         return 1 - nn.CosineSimilarity(dim=-1)(mapping[:, None, :], mapping[None, :, :])
 
 
@@ -52,7 +53,8 @@ class Pseudo_Huber(nn.Module):
 
 class Distortion(nn.Module):
     """Distortion measure of the embedding of finite metric given by matrix D into another metric space"""
-    def __init__(self, D, dist='euclidian'):
+
+    def __init__(self, D, dist="euclidian"):
         """
         Args:
             D (tensor): 2D cost matrix of the finite metric, shape (NxN)
@@ -60,17 +62,19 @@ class Distortion(nn.Module):
         """
         super(Distortion, self).__init__()
         self.D = D
-        if dist == 'euclidian':
+        if dist == "euclidian":
             self.dist = Eucl_Mat()
-        elif dist == 'cosine':
+        elif dist == "cosine":
             self.dist = Cosine_Mat()
 
     def forward(self, mapping, idxs=None):
         """
-            mapping (tensor):  Tensor of shape (N x Embedding_dimension) giving the mapping to the target metric space
+        mapping (tensor):  Tensor of shape (N x Embedding_dimension) giving the mapping to the target metric space
         """
         d = self.dist(mapping)
-        d = (d - self.D).abs() / (self.D + torch.eye(self.D.shape[0], device=self.D.device))
+        d = (d - self.D).abs() / (
+            self.D + torch.eye(self.D.shape[0], device=self.D.device)
+        )
         d = d.sum() / (d.shape[0] ** 2 - d.shape[0])
         return d
 
@@ -92,21 +96,23 @@ class ScaleFreeDistortion(nn.Module):
         alpha = np.sort(alpha)
 
         # Find optimal scaling
-        cumul =  np.cumsum(alpha)
+        cumul = np.cumsum(alpha)
         a_i = alpha[np.where(cumul >= alpha.sum() - cumul)[0].min()]
         scale = 1 / a_i
 
         return self.disto(scale * prototypes)
 
+
 class DistortionLoss(nn.Module):
     """Scale-free squared distortion regularizer"""
-    def __init__(self, D, dist='euclidian', scale_free=True):
+
+    def __init__(self, D, dist="euclidian", scale_free=True):
         super(DistortionLoss, self).__init__()
         self.D = D
         self.scale_free = scale_free
-        if dist == 'euclidian':
+        if dist == "euclidian":
             self.dist = Eucl_Mat()
-        elif dist == 'cosine':
+        elif dist == "cosine":
             self.dist = Cosine_Mat()
 
     def forward(self, mapping, idxs=None):
@@ -118,6 +124,8 @@ class DistortionLoss(nn.Module):
         else:
             scaling = 1.0
 
-        d = (scaling * d - self.D) ** 2 / (self.D + torch.eye(self.D.shape[0], device=self.D.device)) ** 2
+        d = (scaling * d - self.D) ** 2 / (
+            self.D + torch.eye(self.D.shape[0], device=self.D.device)
+        ) ** 2
         d = d.sum() / (d.shape[0] ** 2 - d.shape[0])
         return d

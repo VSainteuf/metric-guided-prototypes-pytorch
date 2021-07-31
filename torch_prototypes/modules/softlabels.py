@@ -3,7 +3,9 @@ import torch
 
 
 class SoftCrossEntropy(nn.Module):
-    def __init__(self, D, beta=1, class_weights=None, ignore_label=None, focal_gamma=None):
+    def __init__(
+        self, D, beta=1, class_weights=None, ignore_label=None, focal_gamma=None
+    ):
         """
         Single Module to compute the soft-labels and pass tham to a cross-entropy loss.
         Args:
@@ -19,13 +21,15 @@ class SoftCrossEntropy(nn.Module):
         self.beta = beta
         self.class_weights = class_weights
         self.ignore_label = ignore_label
-        self.kldiv = nn.KLDivLoss(reduction='batchmean')
+        self.kldiv = nn.KLDivLoss(reduction="batchmean")
         self.gamma = focal_gamma
 
     def forward(self, input, y_true):
         if len(input.shape) == 4:  # Flatten 2D data
             b, c, h, w = input.shape
-            input = input.view(b, c, h * w).transpose(1, 2).contiguous().view(b * h * w, c)
+            input = (
+                input.view(b, c, h * w).transpose(1, 2).contiguous().view(b * h * w, c)
+            )
             y_true = y_true.view(b * h * w)
 
         if self.ignore_label is not None:
@@ -33,7 +37,7 @@ class SoftCrossEntropy(nn.Module):
             y_true = y_true[y_true != self.ignore_label]
 
         out = torch.nn.functional.log_softmax(input, dim=1)
-        soft_target = nn.Softmax(dim=-1)(- self.beta * self.D[y_true.long()])
+        soft_target = nn.Softmax(dim=-1)(-self.beta * self.D[y_true.long()])
 
         if self.gamma is not None:
             out = out * (1 - torch.exp(out)) ** self.gamma
