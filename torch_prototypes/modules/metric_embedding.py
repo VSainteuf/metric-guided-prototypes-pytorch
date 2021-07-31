@@ -26,7 +26,7 @@ def embed_nomenclature(D, embedding_dimension, loss='rank',  n_steps=1000, lr = 
     if loss == 'rank':
         crit = RankLoss(D, n_triplets=1000)
     elif loss == 'disto':
-        crit = DistortionLoss(D)
+        crit = DistortionLoss(D, scale_free=False)
     else:
         raise ValueError
 

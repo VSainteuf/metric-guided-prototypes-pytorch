@@ -3,9 +3,11 @@ PyTorch implementation of [Metric-Guided Prototype Learning](https://arxiv.org/a
 The modules implemented in this repo can be applied to any classification task where a metric can be defined on the class set, *i.e.* when not all misclassifications have the same cost. Such a metric can easily be derived from the hierarchical structure of most class sets. 
 
 
-![](img/xe-free-mgp.png)
+![](img/fig1.png)
 
-
+### Example usage on MNIST
+We show how to use the code to reproduce Figure 1 of the paper in the notebook `mgp.ipynb`. 
+The notebook can also be directly run on [this google colab](https://colab.research.google.com/drive/1VoQfBx5q5lWFev0cwxLZ0qQOZU7Rlmb_#offline=true&sandboxMode=true).
 
 ## Installation
 
@@ -28,16 +30,14 @@ To install the package, run `pip install -e .` inside the main folder.
 
 ## Code 
 The package torch_prototypes contains different methods shown in the paper, implemented as `torch.nn` modules: 
-- "free" learnt prototypes
-- metric-guided prototypes (learnt and fixed) 
-- hyperspherical prototypes
-- hierarchical inference (YOLOv2 hierarchical classification)
-- Distortion loss, Rank loss, and Hypershperical prototype loss
+- Learnt prototypes
+- Metric-guided prototypes (learnt and fixed) 
+- Distortion and *scale free* distortion
+- Distortion loss, Rank loss
+- Hyperspherical prototypes and associated loss
+- Hierarchical inference (YOLOv2 hierarchical classification)
+- Soft labels
 
-
-### Example usage on MNIST
-We show how to use the code to reproduce Figure 1 of the paper in the notebook `mgp.ipynb`. 
-The notebook can also be directly run on [this google colab]().
 
 
 ### Generic usage
@@ -91,6 +91,8 @@ loss = xe(logits, Y) + disto_loss(model.prototypes)
 
 
 ```
+
+By default `DistortionLoss` computes our *scale-free* definition of the distortion (see paper).
 
 
 ## References
