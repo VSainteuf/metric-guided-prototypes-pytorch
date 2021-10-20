@@ -48,8 +48,8 @@ class LearntPrototypes(nn.Module):
         self.dist = dist
         self.ph = None if ph is None else Pseudo_Huber(delta=ph)
 
-    def forward(self, *input):
-        embeddings = self.model(*input)
+    def forward(self, *input, **kwargs):
+        embeddings = self.model(*input, **kwargs)
 
         if len(embeddings.shape) == 4:  # Flatten 2D data
             two_dim_data = True
@@ -104,8 +104,8 @@ class HypersphericalProto(nn.Module):
         self.prototypes = nn.Parameter(prototypes).requires_grad_(False)
         self.num_classes = num_classes
 
-    def forward(self, *input):
-        embeddings = self.model(*input)
+    def forward(self,  *input, **kwargs):
+        embeddings = self.model(*input, **kwargs)
 
         if len(embeddings.shape) == 4:  # Flatten 2D data
             two_dim_data = True
@@ -155,7 +155,7 @@ class DeepNCM(nn.Module):
         self.counter = torch.zeros(num_classes)
         self._check_device = True
 
-    def forward(self, *input_target):
+    def forward(self, *input_target, **kwargs):
         """
         DeepNCM needs the target vector to update the class prototypes
         Args:
@@ -163,7 +163,7 @@ class DeepNCM(nn.Module):
         """
         input = input_target[:-1]
         y_true = input_target[-1]
-        embeddings = self.model(*input)
+        embeddings = self.model(*input, **kwargs)
         if self._check_device:
             self.counter = self.counter.to(embeddings.device)
             self._check_device = False
